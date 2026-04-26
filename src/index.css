@@ -1,0 +1,598 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 220 25% 97%;
+    --foreground: 220 40% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 40% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 40% 15%;
+
+    --primary: 214 95% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 180 60% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 15% 45%;
+
+    --accent: 180 60% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 214 95% 45%;
+
+    --radius: 0.75rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(214 95% 45%) 0%, hsl(180 60% 50%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(220 25% 97%) 0%, hsl(214 95% 98%) 100%);
+    --shadow-primary: 0 10px 40px -10px hsl(214 95% 45% / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 40% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 220 35% 11%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 220 35% 11%;
+    --popover-foreground: 220 15% 95%;
+
+    --primary: 214 95% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 180 60% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 30% 15%;
+    --muted-foreground: 220 15% 60%;
+
+    --accent: 180 60% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 30% 18%;
+    --input: 220 30% 18%;
+    --ring: 214 95% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* =====================================================
+   PREMIUM BACKGROUND SYSTEM
+   ===================================================== */
+
+/* Animated Gradient Background */
+.bg-gradient-hero {
+  position: relative;
+  background: linear-gradient(135deg,
+      hsl(220 25% 97%) 0%,
+      hsl(214 50% 95%) 25%,
+      hsl(220 25% 97%) 50%,
+      hsl(180 30% 96%) 75%,
+      hsl(220 25% 97%) 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  overflow: hidden;
+}
+
+.dark .bg-gradient-hero,
+.bg-gradient-hero.dark {
+  background: linear-gradient(135deg,
+      hsl(220 40% 8%) 0%,
+      hsl(230 45% 12%) 25%,
+      hsl(220 40% 8%) 50%,
+      hsl(250 35% 10%) 75%,
+      hsl(220 40% 8%) 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Floating Orbs Container */
+.bg-gradient-hero::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Premium Orb 1 - Primary Blue */
+.bg-gradient-hero::after {
+  content: '';
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle,
+      hsla(214, 95%, 55%, 0.15) 0%,
+      hsla(214, 95%, 55%, 0.05) 40%,
+      transparent 70%);
+  border-radius: 50%;
+  top: -150px;
+  right: -100px;
+  filter: blur(60px);
+  animation: floatOrb1 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .bg-gradient-hero::after,
+.bg-gradient-hero.dark::after {
+  background: radial-gradient(circle,
+      hsla(214, 95%, 55%, 0.2) 0%,
+      hsla(214, 95%, 55%, 0.08) 40%,
+      transparent 70%);
+}
+
+@keyframes floatOrb1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(-30px, 50px) scale(1.1);
+  }
+
+  50% {
+    transform: translate(-50px, 20px) scale(0.95);
+  }
+
+  75% {
+    transform: translate(-20px, 60px) scale(1.05);
+  }
+}
+
+/* Secondary Floating Elements - Add via additional elements */
+.premium-bg-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Orb 2 - Teal/Cyan accent */
+.premium-orb-1 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle,
+      hsla(180, 60%, 50%, 0.12) 0%,
+      hsla(180, 60%, 50%, 0.04) 40%,
+      transparent 70%);
+  border-radius: 50%;
+  bottom: -100px;
+  left: -80px;
+  filter: blur(50px);
+  animation: floatOrb2 25s ease-in-out infinite;
+}
+
+.dark .premium-orb-1 {
+  background: radial-gradient(circle,
+      hsla(180, 60%, 50%, 0.18) 0%,
+      hsla(180, 60%, 50%, 0.06) 40%,
+      transparent 70%);
+}
+
+@keyframes floatOrb2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(40px, -30px) scale(1.15);
+  }
+
+  66% {
+    transform: translate(20px, -60px) scale(0.9);
+  }
+}
+
+/* Orb 3 - Purple accent */
+.premium-orb-2 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle,
+      hsla(260, 70%, 55%, 0.08) 0%,
+      hsla(260, 70%, 55%, 0.03) 40%,
+      transparent 70%);
+  border-radius: 50%;
+  top: 30%;
+  left: 50%;
+  filter: blur(40px);
+  animation: floatOrb3 18s ease-in-out infinite;
+}
+
+.dark .premium-orb-2 {
+  background: radial-gradient(circle,
+      hsla(260, 70%, 55%, 0.15) 0%,
+      hsla(260, 70%, 55%, 0.05) 40%,
+      transparent 70%);
+}
+
+@keyframes floatOrb3 {
+
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-50%, 30px) scale(1.1);
+  }
+}
+
+/* Orb 4 - Warm accent for visual balance */
+.premium-orb-3 {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle,
+      hsla(35, 90%, 55%, 0.06) 0%,
+      hsla(35, 90%, 55%, 0.02) 40%,
+      transparent 70%);
+  border-radius: 50%;
+  top: 60%;
+  right: 10%;
+  filter: blur(35px);
+  animation: floatOrb4 22s ease-in-out infinite;
+}
+
+.dark .premium-orb-3 {
+  background: radial-gradient(circle,
+      hsla(35, 90%, 55%, 0.1) 0%,
+      hsla(35, 90%, 55%, 0.03) 40%,
+      transparent 70%);
+}
+
+@keyframes floatOrb4 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  40% {
+    transform: translate(-20px, 20px) scale(1.08);
+  }
+
+  80% {
+    transform: translate(10px, -15px) scale(0.95);
+  }
+}
+
+/* Subtle Noise Texture Overlay */
+.premium-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.dark .premium-noise {
+  opacity: 0.04;
+}
+
+/* Grid Lines Overlay (subtle geometric pattern) */
+.premium-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(hsla(214, 50%, 50%, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(214, 50%, 50%, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+}
+
+.dark .premium-grid {
+  background-image:
+    linear-gradient(hsla(214, 50%, 70%, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(214, 50%, 70%, 0.03) 1px, transparent 1px);
+}
+
+/* Main Content Layer - ensures content is above effects */
+.bg-gradient-hero>* {
+  position: relative;
+  z-index: 2;
+}
+
+/* =====================================================
+   PREMIUM CARD STYLES
+   ===================================================== */
+
+/* Cards and containers - NOT buttons */
+.shadow-primary:not(button):not([class*="from-blue"]):not([class*="from-teal"]):not([class*="from-red"]) {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 10px 40px -10px hsla(214, 95%, 45%, 0.25),
+    0 0 0 1px hsla(214, 50%, 90%, 0.5);
+  backdrop-filter: blur(16px);
+  background: hsla(0, 0%, 100%, 0.9) !important;
+  border: 1px solid hsla(214, 50%, 90%, 0.6);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shadow-primary:not(button):not([class*="from-blue"]):not([class*="from-teal"]):not([class*="from-red"]):hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 25px -5px rgba(0, 0, 0, 0.15),
+    0 20px 50px -12px hsla(214, 95%, 45%, 0.35),
+    0 0 0 1px hsla(214, 50%, 85%, 0.8);
+}
+
+.dark .shadow-primary:not(button):not([class*="from-blue"]):not([class*="from-teal"]):not([class*="from-red"]) {
+  background: hsla(220, 35%, 11%, 0.9) !important;
+  border: 1px solid hsla(214, 50%, 30%, 0.4);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 10px 40px -10px hsla(214, 95%, 55%, 0.2),
+    0 0 0 1px hsla(214, 50%, 25%, 0.5);
+}
+
+.dark .shadow-primary:not(button):not([class*="from-blue"]):not([class*="from-teal"]):not([class*="from-red"]):hover {
+  box-shadow:
+    0 8px 25px -5px rgba(0, 0, 0, 0.4),
+    0 20px 50px -12px hsla(214, 95%, 55%, 0.3),
+    0 0 0 1px hsla(214, 50%, 35%, 0.6);
+}
+
+/* Glow effect on focus for premium feel */
+.shadow-primary:not(button):focus-within {
+  box-shadow:
+    0 8px 25px -5px rgba(0, 0, 0, 0.15),
+    0 20px 50px -12px hsla(214, 95%, 45%, 0.35),
+    0 0 0 3px hsla(214, 95%, 55%, 0.25);
+}
+
+/* =====================================================
+   PREMIUM INPUT STYLES
+   ===================================================== */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid hsla(220, 15%, 88%, 1);
+  border-radius: 0.75rem;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+select:focus,
+textarea:focus {
+  border-color: hsla(214, 95%, 55%, 0.8);
+  box-shadow:
+    0 0 0 4px hsla(214, 95%, 55%, 0.15),
+    0 4px 12px -2px hsla(214, 95%, 55%, 0.2);
+  outline: none;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover:not(:focus),
+select:hover:not(:focus),
+textarea:hover:not(:focus) {
+  border-color: hsla(214, 95%, 55%, 0.4);
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark select,
+.dark textarea {
+  border-color: hsla(220, 30%, 25%, 1);
+  background: hsla(220, 35%, 12%, 0.8);
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: hsla(214, 95%, 60%, 0.8);
+  box-shadow:
+    0 0 0 4px hsla(214, 95%, 55%, 0.2),
+    0 4px 12px -2px hsla(214, 95%, 55%, 0.3);
+}
+
+/* =====================================================
+   PREMIUM BUTTON ANIMATIONS
+   ===================================================== */
+
+/* Button shine effect on hover */
+@keyframes buttonShine {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Apply shine to primary buttons */
+button[class*="from-blue"]:not(:disabled)::before,
+button[class*="from-teal"]:not(:disabled)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+button[class*="from-blue"]:not(:disabled):hover::before,
+button[class*="from-teal"]:not(:disabled):hover::before {
+  opacity: 1;
+  animation: buttonShine 1.5s ease-in-out infinite;
+}
+
+/* Button needs relative positioning for shine */
+button[class*="from-blue"],
+button[class*="from-teal"] {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ripple effect styles */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* =====================================================
+   INTERACTIVE LINK STYLES
+   ===================================================== */
+
+a:not([class*="Button"]):not([class*="button"]) {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =====================================================
+   FEATURE CARD HOVER EFFECTS
+   ===================================================== */
+
+.hover\\:shadow-primary:hover {
+  transform: translateY(-8px) !important;
+  box-shadow:
+    0 12px 35px -8px rgba(0, 0, 0, 0.2),
+    0 25px 60px -15px hsla(214, 95%, 45%, 0.4) !important;
+}
+
+/* =====================================================
+   GENERAL INTERACTIVE TRANSITIONS
+   ===================================================== */
+
+button,
+input,
+select,
+a,
+textarea {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading state animation */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsla(214, 95%, 55%, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px hsla(214, 95%, 55%, 0);
+  }
+}
+
+button:disabled {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* =====================================================
+   LOGO AND ICON HOVER EFFECTS
+   ===================================================== */
+
+img[alt*="Logo"]:hover,
+img[alt*="logo"]:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Avatar hover effect */
+img[class*="rounded-full"]:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.2);
+}

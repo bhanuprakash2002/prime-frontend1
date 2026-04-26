@@ -1,0 +1,514 @@
+﻿================================================================================
+  PRIMETALKER - PROJECT FLOW DIAGRAM
+  Real-time Voice Translation Application
+================================================================================
+
+
+================================================================================
+  [1] TECH STACK
+================================================================================
+
+  FRONTEND (p1/)                        BACKEND (twil/)
+  ================================      ================================
+  Framework  : React 18 + Vite + TS    Runtime    : Node.js
+  Routing    : React Router v6          Framework  : Express.js
+  State      : TanStack React Query     WebSocket  : ws library
+  UI         : shadcn/ui + Radix UI     AI STT     : Google Cloud Speech
+  Styling    : Tailwind CSS v3          AI Translate: Google Translate
+  Forms      : React Hook Form + Zod    AI TTS     : Google Cloud TTS
+  Video SDK  : Twilio Video JS v2       Video Token: Twilio JWT
+  Icons      : Lucide React             Deploy     : Render / AWS EC2
+  Deploy     : Vercel
+
+  EXTERNAL SERVICES
+  ================================
+  Supabase    : Auth + PostgreSQL DB
+  Twilio      : Video (WebRTC SFU)
+  Google Cloud: Speech + Translate + TTS (Neural2)
+
+
+================================================================================
+  [2] VOICE TRANSLATION FLOW (Main Feature)
+================================================================================
+
+  USER A (Browser)                  BACKEND                 GOOGLE CLOUD
+  ================                  =======                 ============
+
+  [1] User speaks
+       |
+       v
+  [2] ScriptProcessorNode
+      8192 audio samples
+      Float32 PCM -> Int16 PCM
+      Encode to base64
+       |
+       | WebSocket every 200ms
+       | { event:"audio", audio:"<base64>" }
+       v
+                             [3] server.js receives
+                                  |
+                                  | Decode base64 -> Buffer
+                                  v
+                             [4] Write to gRPC stream
+                                  |
+                                  +------------------------------> Google STT
+                                                                       |
+                                                          INTERIM result (live)
+                                                                       |
+                                  <-----------------------------+  FINAL result
+                                  |
+                             [5] VoiceProcessor
+                                 Accumulate finals
+                                 into sentence buffer
+                                  |
+                             [6] Silence timeout fires
+                                 English/Euro : 1500ms
+                                 Indian langs : 1000ms
+                                  |
+                                  +------------------------------> Google Translate
+                                                                       |
+                                                              Translated text
+                                  <-----------------------------+
+                                  |
+                                  | Send to BOTH users:
+                                  | { event:"translation",
+                                  |   originalText, translatedText }
+                                  |
+                                  +------------------------------> Google TTS
+                                                                  (Neural2 voice)
+                                                                       |
+                                                                  WAV audio
+                                  <-----------------------------+
+                                  |
+                                  | WebSocket to PARTNER:
+                                  | { event:"audio_playback",
+                                  |   audio:"<base64 WAV>" }
+                                  v
+  USER B (Browser)
+  Decode base64 WAV -> Blob URL
+  HTML5 Audio.play()
+       |
+       v
+  [7] User B HEARS the translation
+      in their own language!
+
+
+  SIMPLIFIED VISUAL:
+  ------------------
+
+  User A Mic
+     |
+     | [PCM audio - every 200ms via WebSocket]
+     v
+  Backend server.js
+     |
+     | [gRPC stream]
+     v
+  Google Speech-to-Text
+     |
+     | [transcript text]
+     v
+  VoiceProcessor (sentence accumulation)
+     |
+     | [finalized sentence]
+     v
+  Google Translate
+     |
+     | [translated text]
+     v
+  Google TTS (Neural2)
+     |
+     | [WAV audio via WebSocket]
+     v
+  User B Browser -> plays -> User B HEARS translation!
+
+
+================================================================================
+  [3] FULL SYSTEM ARCHITECTURE
+================================================================================
+
+                    +-------------------------------+
+                    |         BROWSER               |
+                    |  React + Vite + TypeScript    |
+                    |    Deployed on Vercel          |
+                    +---+----------+----------+------+
+                        |          |          |
+                   HTTPS REST   WebSocket  HTTPS Auth
+                  (REST API)  (/audio-     (Supabase)
+                              stream)
+                        |          |          |
+                        v          v          v
+                 +-------+  +----------+  +----------+
+                 |Express|  | ws Server|  | Supabase |
+                 | REST  |  |voice-    |  | Auth+DB  |
+                 |server |  |processor |  |(PostgreSQL|
+                 +---+---+  +----+-----+  +----------+
+                     |           |
+                     |      gRPC streaming
+                     |           |
+                     |           v
+                     |    +------+------+
+                     |    | Google STT  |
+                     |    +------+------+
+                     |           | transcript
+                     |           v
+                     |    +------+------+
+                     |    | Google      |
+                     |    | Translate   |
+                     |    +------+------+
+                     |           | translated text
+                     |           v
+                     |    +------+------+
+                     |    | Google TTS  |
+                     |    | (Neural2)   |
+                     |    +------+------+
+                     |           |
+                     |    WAV audio -> WebSocket -> Partner Browser
+                     |
+                 POST /api/video-token
+                     |
+                     v
+               +-----------+
+               | Twilio JWT|
+               +-----------+
+                     |
+              Browser Twilio.connect(token)
+                     |
+                     v
+              +-----------+
+              |  Twilio   |
+              | Video SFU | <- WebRTC media relay (video call)
+              +-----------+
+
+
+================================================================================
+  [4] PAGE ROUTES
+================================================================================
+
+  URL                    COMPONENT        ACCESS
+  ----                   ---------        ------
+  /                      Index.tsx        Public  -> redirect logic
+  /landing               Landing.tsx      Public  -> marketing page
+  /auth                  Auth.tsx         Public  -> login / register
+  /rooms                 Rooms.tsx        PRIVATE -> dashboard (needs login)
+  /meeting/:roomId       Meeting.tsx      Public  -> live call page
+  /join/:roomId          Join.tsx         Public  -> guest join via link
+  *                      NotFound.tsx     Public  -> 404
+
+  PROTECTED ROUTE LOGIC (App.tsx):
+  ---------------------------------
+  Check localStorage("prime_user")
+       |
+       +-- NOT FOUND --> redirect to /auth
+       +-- FOUND     --> allow access to /rooms
+
+
+================================================================================
+  [5] USER JOURNEYS
+================================================================================
+
+  CREATOR JOURNEY:                        GUEST JOURNEY:
+  ================                        ==============
+
+  [Open App]                              [Receive shared link]
+       |                                       |
+       v                                       v
+  [/landing]                              [/join/:roomId]
+  Click "Get Started"                     Enter name + language
+       |                                       |
+       v                                       v
+  [/auth]                                 POST /join-room
+  Login with Supabase                     (server registers participant)
+       |                                       |
+       v                                       v
+  [/rooms]                                [/meeting/:roomId]
+  Click "Create Room"                          |
+       |                                       v
+       v                                  WebSocket connects
+  POST /create-room                       Twilio JWT fetched
+  (server returns roomId)                      |
+       |                                       v
+       v                                  [LIVE CALL BEGINS]
+  [/meeting/:roomId]
+  WebSocket connects
+  Twilio JWT fetched
+  Share link with partner
+       |
+       v
+  [LIVE CALL BEGINS]
+
+
+================================================================================
+  [6] AUTHENTICATION FLOW (Supabase)
+================================================================================
+
+  Browser (Auth.tsx)
+       |
+       | supabase.auth.signUp()
+       | or
+       | supabase.auth.signInWithPassword()
+       v
+  +-----------------------------+
+  |  Supabase Auth              |
+  |  (PostgreSQL + JWT tokens)  |
+  +-----------------------------+
+       |
+       | returns { user, session }
+       v
+  localStorage.setItem("prime_user", JSON.stringify(user))
+       |
+       v
+  App.tsx -> ProtectedRoute checks localStorage
+       |
+       +-- key missing --> <Navigate to="/auth" />
+       +-- key found   --> render /rooms page
+
+
+================================================================================
+  [7] VIDEO CALLING FLOW (Twilio)
+================================================================================
+
+  Browser (useTwilioVideo.ts)
+       |
+       | POST /api/video-token
+       | body: { identity, roomName }
+       v
+  Backend server.js
+  Creates Twilio AccessToken + VideoGrant
+       |
+       | returns { token: "<JWT>" }
+       v
+  Browser: Twilio.Video.connect(token, { name: roomName })
+       |
+       v
+  +---------------------------+
+  |    Twilio Video Cloud     |
+  |    TURN/STUN SFU Server   |
+  +---------------------------+
+       |
+       | RemoteParticipant events arrive
+       v
+  <ParticipantTile /> renders video element
+  <ControlBar />     - camera + mic toggles
+
+
+================================================================================
+  [8] BACKEND REST API ENDPOINTS
+================================================================================
+
+  METHOD  ENDPOINT               DESCRIPTION
+  ------  --------               -----------
+  GET     /health                Server OK + active room count
+  POST    /create-room           Create room, returns { roomId, joinUrl }
+  POST    /join-room             Guest joins, returns creator lang + name
+  GET     /room-info?roomId=X    Get room details
+  POST    /leave-room            Leave / delete room
+  POST    /api/video-token       Generate Twilio JWT for video call
+  WS      /audio-stream          Real-time audio translation stream
+
+
+================================================================================
+  [9] WEBSOCKET EVENTS
+================================================================================
+
+  CLIENT --> SERVER                     SERVER --> CLIENT
+  =================                     =================
+
+  { event: "connected"              { event: "user_joined"
+    roomId: "abc123"                  name: "Bhanu"
+    userType: "caller"                language: "te-IN" }
+    myLanguage: "en-US"
+    myName: "John" }               { event: "user_left" }
+
+  { event: "audio"                  { event: "transcript_interim"
+    audio: "<base64 PCM>" }           text: "Hello how are..." }
+  (sent every 200ms)
+                                    { event: "translation"
+  { event: "disconnect" }             originalText: "Hello"
+                                      translatedText: "Namaste"
+                                      fromUser: "caller"
+                                      fromLanguage: "en-US"
+                                      toLanguage: "hi-IN" }
+
+                                    { event: "audio_playback"
+                                      audio: "<base64 WAV>"
+                                      format: "wav" }
+
+
+================================================================================
+  [10] GOOGLE CLOUD AI PIPELINE DETAIL
+================================================================================
+
+  SPEECH-TO-TEXT (STT)
+  --------------------
+  Package : @google-cloud/speech
+  Method  : streamingRecognize (gRPC streaming)
+  Config  :
+    encoding       = LINEAR16
+    sampleRateHertz= 48000
+    model          = latest_long (enhanced)
+    interimResults = true
+  Feature : Auto-restarts every 50s (Google 60s stream limit)
+  Output  : Interim (live preview) + Final (complete phrase)
+
+  TRANSLATE
+  ---------
+  Package : @google-cloud/translate v2
+  Method  : translate(text, { from, to })
+  Input   : Finalized sentence + source lang + target lang
+  Output  : Translated text string
+
+  TEXT-TO-SPEECH (TTS)
+  --------------------
+  Package : @google-cloud/text-to-speech
+  Method  : synthesizeSpeech()
+  Config  :
+    audioEncoding  = LINEAR16
+    sampleRateHertz= 48000
+    speakingRate   = 1.1 (slightly faster)
+    voice          = Neural2 (highest quality)
+  Output  : PCM bytes -> WAV header (44 bytes) added -> base64 -> WebSocket
+
+
+================================================================================
+  [11] PERFORMANCE OPTIMIZATIONS
+================================================================================
+
+  1. SINGLETON GOOGLE CLIENTS
+     One shared STT, Translate, TTS client for ALL connections
+     Saves 200-500ms per user (no re-authentication overhead)
+
+  2. PRE-WARMING
+     On WebSocket connect:
+       + 500ms -> STT stream opened in background
+       + 600ms -> Translate + TTS called with dummy text
+     Eliminates cold-start delay on first actual speech
+
+  3. ADAPTIVE SILENCE TIMEOUT
+     English / European = 1500ms silence -> finalize + translate
+     Indian Languages   = 1000ms silence -> finalize + translate
+     Indian lang codes: te hi ta bn gu kn ml mr pa ur
+
+  4. STT STREAM AUTO-RESTART
+     Google STT max stream = 60s
+     Server detects age > 50s -> gracefully restarts stream
+     Accumulated sentence buffer preserved across restart
+
+  5. AUDIO PLAYBACK QUEUE
+     TTS audio stored in array queue (audioQueueRef[])
+     Plays one WAV at a time sequentially
+     Prevents audio overlap or interruption
+
+  6. HARDWARE MUTE
+     track.enabled = false -> mic off at hardware level
+     Accumulated audio chunks cleared on mute
+     Zero data sent to server when muted
+
+
+================================================================================
+  [12] FOLDER STRUCTURE
+================================================================================
+
+  p1/                              <- FRONTEND
+  +-- src/
+      +-- pages/
+          +-- Landing.tsx          (marketing page)
+          +-- Auth.tsx             (login/register - Supabase)
+          +-- Rooms.tsx            (create/join rooms - PROTECTED)
+          +-- Meeting.tsx          (live call - video + translation)
+          +-- Join.tsx             (guest join via link)
+          +-- Index.tsx            (redirect logic)
+          +-- NotFound.tsx         (404)
+      +-- components/
+          +-- call/
+              +-- ControlBar.tsx   (mic + camera toggles)
+              +-- MicLevel.tsx     (mic volume visualizer)
+              +-- ParticipantTile.tsx (video tile per participant)
+              +-- RightPanel.tsx   (live transcript panel)
+          +-- Footer.tsx
+          +-- NavLink.tsx
+          +-- PremiumBackground.tsx
+          +-- ui/                  (shadcn/ui library components)
+      +-- hooks/
+          +-- useWebSocket.ts      (WebSocket + audio capture + playback)
+          +-- useTwilioVideo.ts    (Twilio Video management)
+          +-- useUsername.ts       (user identity helper)
+          +-- use-mobile.tsx       (responsive breakpoint detection)
+          +-- use-toast.ts         (toast notifications)
+      +-- integrations/supabase/   (Supabase client config + types)
+      +-- lib/utils.ts             (BASE_URL + utility helpers)
+      +-- App.tsx                  (routing + ProtectedRoute wrapper)
+      +-- main.tsx                 (React entry point)
+  +-- vercel.json                  (Vercel SPA routing config)
+  +-- vite.config.ts
+  +-- tailwind.config.ts
+  +-- package.json
+  +-- index.html
+
+  twil/                            <- BACKEND
+  +-- server.js                   (Express + WebSocket server)
+  +-- voice-processor.js          (Google Cloud AI pipeline class)
+  +-- package.json
+  +-- google-credentials.json     (Google Service Account key)
+  +-- .env                        (Twilio keys, PORT)
+
+
+================================================================================
+  [13] ENVIRONMENT VARIABLES
+================================================================================
+
+  FRONTEND (p1/.env)
+  ------------------
+  VITE_SUPABASE_URL      = https://xxx.supabase.co
+  VITE_SUPABASE_ANON_KEY = eyJ...
+  VITE_BACKEND_URL       = http://localhost:5000   (development)
+                         = https://yourserver.com  (production)
+
+  BACKEND (twil/.env)
+  -------------------
+  PORT                   = 5000
+  TWILIO_ACCOUNT_SID     = ACxxx...
+  TWILIO_API_KEY_SID     = SKxxx...
+  TWILIO_API_SECRET      = xxx...
+  GOOGLE_CREDENTIALS     = { "type":"service_account", ... }  (JSON string)
+
+
+================================================================================
+  [14] HOW TO RUN
+================================================================================
+
+  FRONTEND:
+    cd p1
+    npm install
+    npm run dev        -> http://localhost:5173
+
+  BACKEND:
+    cd twil
+    npm install
+    node server.js     -> http://localhost:5000
+
+  DEPLOY:
+    Frontend -> push to GitHub -> Vercel auto-deploys
+    Backend  -> Render or EC2
+    EC2 steps -> see: .agent/workflows/deploy-ec2.md
+
+
+================================================================================
+  [15] SUPPORTED LANGUAGES (40+)
+================================================================================
+
+  INDIAN (10)   : Telugu  Hindi   Tamil    Bengali  Gujarati
+                  Kannada  Malayalam  Marathi  Punjabi  Urdu
+
+  EUROPEAN (19) : English  Spanish  French   German   Portuguese
+                  Italian  Dutch    Polish   Russian  Swedish
+                  Danish   Norwegian  Finnish  Greek  Czech
+                  Romanian  Hungarian  Ukrainian  Afrikaans
+
+  ASIAN (8)     : Chinese  Japanese  Korean   Vietnamese
+                  Thai     Indonesian  Malay  Filipino
+
+  MIDDLE EAST(4): Arabic   Hebrew   Turkish  Persian
+
+
+

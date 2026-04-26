@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeTalker User Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 40px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .version {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-top: 16px;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .toc h2 {
+            font-size: 1.25rem;
+            color: #6366f1;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .toc li:last-child {
+            border-bottom: none;
+        }
+
+        .toc a {
+            color: #374151;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: #6366f1;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #6366f1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section h2 .number {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            color: #374151;
+            margin: 24px 0 12px 0;
+        }
+
+        .section p {
+            color: #4b5563;
+            margin-bottom: 16px;
+        }
+
+        /* Steps */
+        .steps {
+            counter-reset: step;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .steps li {
+            position: relative;
+            padding: 16px 16px 16px 56px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #6366f1;
+        }
+
+        .steps li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: #6366f1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Tips */
+        .tip {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 4px solid #10b981;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .tip strong {
+            color: #059669;
+        }
+
+        /* Note */
+        .note {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .note strong {
+            color: #d97706;
+        }
+
+        /* Feature list */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .feature {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .feature h4 {
+            font-size: 0.95rem;
+            color: #374151;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #e5e7eb;
+            }
+
+            .header {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <img src="https://primetalker.vercel.app/logo.png" alt="PrimeTalker Logo"
+                style="height: 60px; margin-bottom: 16px;">
+            <h1>User Guide</h1>
+            <p>Break Language Barriers in Real-Time</p>
+            <span class="version">Version 1.0 • December 2025</span>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2>📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#getting-started">1. Getting Started</a></li>
+                <li><a href="#create-account">2. Creating an Account</a></li>
+                <li><a href="#sign-in">3. Signing In</a></li>
+                <li><a href="#create-room">4. Creating a Room</a></li>
+                <li><a href="#join-room">5. Joining a Room</a></li>
+                <li><a href="#in-meeting">6. In the Meeting</a></li>
+                <li><a href="#profile">7. Managing Your Profile</a></li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Getting Started -->
+        <div class="section" id="getting-started">
+            <h2><span class="number">1</span> Getting Started</h2>
+            <p>Welcome to <strong>PrimeTalker</strong> — your real-time translation platform for seamless global
+                communication. With PrimeTalker, you can have voice conversations with anyone, regardless of the
+                language they speak.</p>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎙️</div>
+                    <h4>HD Voice Calls</h4>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🌍</div>
+                    <h4>100+ Languages</h4>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Real-Time Translation</h4>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Secure & Encrypted</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Create Account -->
+        <div class="section" id="create-account">
+            <h2><span class="number">2</span> Creating an Account</h2>
+            <p>To use PrimeTalker, you need to create a free account. Here's how:</p>
+
+            <ol class="steps">
+                <li>Go to the PrimeTalker landing page and click <strong>"Get Started"</strong> or <strong>"Sign
+                        In"</strong></li>
+                <li>Click <strong>"Don't have an account? Sign up"</strong> at the bottom</li>
+                <li>Fill in your details:
+                    <ul style="margin-top: 8px; padding-left: 20px;">
+                        <li><strong>Username</strong> — Choose a display name</li>
+                        <li><strong>Email</strong> — Your email address</li>
+                        <li><strong>Country</strong> — Select from dropdown</li>
+                        <li><strong>State/Province</strong> — Select your region</li>
+                        <li><strong>Password</strong> — At least 6 characters</li>
+                        <li><strong>Confirm Password</strong> — Re-enter password</li>
+                    </ul>
+                </li>
+                <li>Click <strong>"Sign Up"</strong></li>
+                <li>Check your email for a verification link and click it to confirm your account</li>
+            </ol>
+
+            <div class="tip">
+                <strong>💡 Tip:</strong> Use a strong password with a mix of letters, numbers, and symbols for better
+                security.
+            </div>
+        </div>
+
+        <!-- Section 3: Sign In -->
+        <div class="section" id="sign-in">
+            <h2><span class="number">3</span> Signing In</h2>
+            <p>Once you have an account, signing in is quick and easy:</p>
+
+            <ol class="steps">
+                <li>Go to the PrimeTalker landing page</li>
+                <li>Click <strong>"Sign In"</strong></li>
+                <li>Enter your <strong>Email</strong> and <strong>Password</strong></li>
+                <li>Click <strong>"Sign In"</strong> to access your dashboard</li>
+            </ol>
+
+            <h3>Forgot Your Password?</h3>
+            <ol class="steps">
+                <li>On the sign-in page, click <strong>"Forgot password?"</strong></li>
+                <li>Enter your registered email address</li>
+                <li>Click <strong>"Send Reset Link"</strong></li>
+                <li>Check your email and click the reset link</li>
+                <li>Enter your new password twice and save</li>
+            </ol>
+        </div>
+
+        <!-- Section 4: Create Room -->
+        <div class="section" id="create-room">
+            <h2><span class="number">4</span> Creating a Room</h2>
+            <p>Start a new meeting room to invite others:</p>
+
+            <ol class="steps">
+                <li>After signing in, you'll see the <strong>Rooms</strong> page</li>
+                <li>Under <strong>"Create Room"</strong>, select <strong>Your Language</strong> from the dropdown</li>
+                <li>Click <strong>"Create New Room"</strong></li>
+                <li>Your room will be created with a unique <strong>Room ID</strong></li>
+                <li>Copy the <strong>Share Link</strong> and send it to the person you want to talk to</li>
+                <li>Click <strong>"Enter Room"</strong> to join your meeting</li>
+            </ol>
+
+            <div class="note">
+                <strong>⚠️ Note:</strong> The share link allows anyone to join your room directly. Share it only with
+                people you trust.
+            </div>
+        </div>
+
+        <!-- Section 5: Join Room -->
+        <div class="section" id="join-room">
+            <h2><span class="number">5</span> Joining a Room</h2>
+            <p>There are two ways to join an existing meeting:</p>
+
+            <h3>Option A: Using a Share Link</h3>
+            <ol class="steps">
+                <li>Click the share link someone sent you</li>
+                <li>If not signed in, log in first</li>
+                <li>Select <strong>Your Language</strong></li>
+                <li>Click <strong>"Join Room"</strong></li>
+            </ol>
+
+            <h3>Option B: Using the Room ID</h3>
+            <ol class="steps">
+                <li>Go to the <strong>Rooms</strong> page</li>
+                <li>Under <strong>"Join Room"</strong>, enter the <strong>Room ID</strong></li>
+                <li>Select <strong>Your Language</strong></li>
+                <li>Click <strong>"Join Room"</strong></li>
+            </ol>
+        </div>
+
+        <!-- Section 6: In Meeting -->
+        <div class="section" id="in-meeting">
+            <h2><span class="number">6</span> In the Meeting</h2>
+            <p>Once you're in a meeting, here's what you need to know:</p>
+
+            <h3>Starting the Call</h3>
+            <ol class="steps">
+                <li>Click <strong>"Start Meeting"</strong> to connect</li>
+                <li>You'll see your tile and your partner's tile (when they join)</li>
+                <li>The status badge shows your connection status</li>
+            </ol>
+
+            <h3>Meeting Controls</h3>
+            <p>Use the floating control bar at the bottom:</p>
+            <ul style="padding-left: 24px; margin: 16px 0;">
+                <li><strong>🎤 Microphone</strong> — Toggle to mute/unmute yourself</li>
+                <li><strong>🔊 Speaker</strong> — Toggle to enable/disable audio output</li>
+                <li><strong>💬 Chat/Transcripts</strong> — Open the side panel to view transcripts</li>
+                <li><strong>📞 End Call</strong> — Leave the meeting</li>
+            </ul>
+
+            <h3>Real-Time Translation</h3>
+            <p>When you speak:</p>
+            <ol class="steps">
+                <li>Your voice is captured and transcribed in real-time</li>
+                <li>The transcript appears in the side panel</li>
+                <li>Your partner hears your speech translated into their language</li>
+                <li>They can respond, and you'll hear their translated response</li>
+            </ol>
+
+            <div class="tip">
+                <strong>💡 Tip:</strong> Speak clearly and at a moderate pace for the best translation accuracy.
+            </div>
+        </div>
+
+        <!-- Section 7: Profile -->
+        <div class="section" id="profile">
+            <h2><span class="number">7</span> Managing Your Profile</h2>
+            <p>Customize your account from the landing page:</p>
+
+            <ol class="steps">
+                <li>When signed in, click your <strong>profile avatar</strong> (top right)</li>
+                <li>A drawer will open showing your account details</li>
+                <li>Click <strong>"Edit Profile"</strong> to change:
+                    <ul style="margin-top: 8px; padding-left: 20px;">
+                        <li><strong>Profile Picture</strong> — Upload a new avatar</li>
+                        <li><strong>Display Name</strong> — Change your name</li>
+                    </ul>
+                </li>
+                <li>Click <strong>"Save Changes"</strong> to update</li>
+                <li>Click <strong>"Sign Out"</strong> to log out of your account</li>
+            </ol>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2025 PrimeTalker. All rights reserved.</p>
+            <p style="margin-top: 8px;">Need help? Contact support@primetalker.com</p>
+        </div>
+    </div>
+</body>
+
+</html>
