@@ -84,6 +84,30 @@ export function useWebSocket({
                 bytes[i] = binaryString.charCodeAt(i);
             }
 
+            // Prefer AudioContext for gapless, zero-latency playback (prevents first-word cutoffs)
+            if (audioContextRef.current && audioContextRef.current.state === "running") {
+                try {
+                    // Make a copy of the buffer because decodeAudioData detaches the arraybuffer
+                    const bufferCopy = bytes.buffer.slice(0);
+                    const audioBuffer = await audioContextRef.current.decodeAudioData(bufferCopy);
+                    const source = audioContextRef.current.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(audioContextRef.current.destination);
+                    
+                    source.onended = () => {
+                        isPlayingRef.current = false;
+                        processAudioQueue();
+                    };
+                    
+                    source.start(0);
+                    console.log("🔊 Playing translated audio via AudioContext");
+                    return; // Successfully played using Web Audio API
+                } catch (e) {
+                    console.warn("AudioContext decode failed, falling back to HTML Audio:", e);
+                }
+            }
+
+            // Fallback to HTML Audio element
             const audioBlob = new Blob([bytes], { type: "audio/wav" });
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
@@ -101,7 +125,7 @@ export function useWebSocket({
             };
 
             await audio.play();
-            console.log("🔊 Playing translated audio");
+            console.log("🔊 Playing translated audio via HTML Audio");
         } catch (err) {
             console.error("Error playing audio:", err);
             isPlayingRef.current = false;
