@@ -15,7 +15,7 @@ export function cn(...inputs: ClassValue[]) {
 // 🔹 BACKEND BASE URL
 // Production URL hardcoded for Vercel deployment
 // ---------------------------------------------
-export const BASE_URL = import.meta.env.VITE_API_URL || "https://primetalker1-production.up.railway.app";
+export const BASE_URL = import.meta.env.VITE_API_URL || "https://live-translation-backend.azurewebsites.net";
 console.log("BASE_URL:", BASE_URL);
 
 // ---------------------------------------------
