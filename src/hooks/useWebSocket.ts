@@ -192,13 +192,13 @@ export function useWebSocket({
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
-                    sampleRate: 48000,
+                    sampleRate: 16000,
                     channelCount: 1,
                 },
             });
 
             mediaStreamRef.current = stream;
-            const audioContext = new AudioContext({ sampleRate: 48000 });
+            const audioContext = new AudioContext({ sampleRate: 16000 });
             audioContextRef.current = audioContext;
 
             const source = audioContext.createMediaStreamSource(stream);
@@ -265,12 +265,10 @@ export function useWebSocket({
                 }
                 audioChunksRef.current = [];
 
-                const bytes = new Uint8Array(combined.buffer);
-                let binary = "";
-                for (let i = 0; i < bytes.length; i++) {
-                    binary += String.fromCharCode(bytes[i]);
-                }
-                const base64Audio = btoa(binary);
+                const base64Audio = btoa(
+                    new Uint8Array(combined.buffer)
+                        .reduce((data, byte) => data + String.fromCharCode(byte), "")
+                );
 
                 ws.send(JSON.stringify({ event: "audio", audio: base64Audio }));
             }, 100);
