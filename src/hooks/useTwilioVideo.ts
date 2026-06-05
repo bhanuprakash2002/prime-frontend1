@@ -254,40 +254,16 @@ export function useTwilioVideo({
     }, []);
 
     // Toggle video on/off
-    const toggleVideo = useCallback(async () => {
-        if (isVideoOn) {
-            // Turn OFF: completely stop hardware and unpublish
-            if (localTrackRef.current) {
-                localTrackRef.current.stop();
-                if (roomRef.current && roomRef.current.localParticipant) {
-                    roomRef.current.localParticipant.unpublishTrack(localTrackRef.current);
-                }
-                localTrackRef.current = null;
-                setLocalVideoTrack(null);
+    const toggleVideo = useCallback(() => {
+        if (localTrackRef.current) {
+            if (isVideoOn) {
+                localTrackRef.current.disable();
+                console.log("📹 Video disabled");
+            } else {
+                localTrackRef.current.enable();
+                console.log("📹 Video enabled");
             }
-            setIsVideoOn(false);
-            console.log("📹 Video completely stopped and unpublished");
-        } else {
-            // Turn ON: request a brand new track from hardware
-            try {
-                const newVideoTrack = await Video.createLocalVideoTrack({
-                    width: { ideal: 640 },
-                    height: { ideal: 480 },
-                    frameRate: { ideal: 24 },
-                });
-                localTrackRef.current = newVideoTrack;
-                setLocalVideoTrack(newVideoTrack);
-                
-                // Publish to the active room if we are connected
-                if (roomRef.current && roomRef.current.localParticipant) {
-                    await roomRef.current.localParticipant.publishTrack(newVideoTrack);
-                }
-                setIsVideoOn(true);
-                console.log("📹 Video restarted and published");
-            } catch (err) {
-                console.error("Failed to restart video", err);
-                setError("Camera access failed when turning video back on.");
-            }
+            setIsVideoOn(!isVideoOn);
         }
     }, [isVideoOn]);
 

@@ -79,9 +79,9 @@ export default function ParticipantTile({
         ${isSpeaking ? "border-green-500 shadow-lg shadow-green-500/20" : "border-slate-700/50"}
       `}
     >
-      {/* Video element */}
-      {hasVideo ? (
-        <div className="w-full h-full relative min-h-[200px] flex-1">
+      {/* Video element - always render if videoTrack exists so attach() isn't disrupted */}
+      {videoTrack && (
+        <div className="absolute inset-0 w-full h-full">
           <video
             ref={videoRef}
             autoPlay
@@ -89,19 +89,24 @@ export default function ParticipantTile({
             muted={isLocal} // Mute local video to prevent echo
             className={`w-full h-full object-cover ${isLocal ? "scale-x-[-1]" : ""}`}
           />
-          {/* Name overlay on video */}
-          <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className="bg-black/60 px-3 py-1 rounded-full text-white text-sm font-medium">
-              {name} {isLocal && "(You)"}
-            </span>
-            <span className="bg-black/60 px-2 py-1 rounded-full text-sm">
-              {langFlag}
-            </span>
-          </div>
         </div>
-      ) : (
-        /* Avatar fallback when no video */
-        <div className="w-full h-full flex flex-col items-center justify-center p-6 min-h-[200px] flex-1">
+      )}
+
+      {/* Name overlay on video (when video is ON) */}
+      {isVideoOn && (
+        <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+          <span className="bg-black/60 px-3 py-1 rounded-full text-white text-sm font-medium">
+            {name} {isLocal && "(You)"}
+          </span>
+          <span className="bg-black/60 px-2 py-1 rounded-full text-sm">
+            {langFlag}
+          </span>
+        </div>
+      )}
+
+      {/* Avatar overlay when video is OFF */}
+      {!isVideoOn && (
+        <div className="absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center p-6 z-20">
           {/* Avatar circle */}
           <div
             className={`
@@ -131,12 +136,10 @@ export default function ParticipantTile({
           </div>
 
           {/* Video off indicator */}
-          {!isVideoOn && (
-            <div className="mt-2 flex items-center gap-1 text-slate-400 text-sm">
-              <VideoOff size={14} />
-              <span>Camera Off</span>
-            </div>
-          )}
+          <div className="mt-2 flex items-center gap-1 text-slate-400 text-sm">
+            <VideoOff size={14} />
+            <span>Camera Off</span>
+          </div>
         </div>
       )}
 
