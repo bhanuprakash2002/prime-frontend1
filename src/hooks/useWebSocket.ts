@@ -21,6 +21,7 @@ interface UseWebSocketProps {
     myName: string;
     onPartnerJoined?: (name: string, language: string) => void;
     onPartnerLeft?: () => void;
+    isSpeakerOn?: boolean;
 }
 
 export function useWebSocket({
@@ -28,6 +29,7 @@ export function useWebSocket({
     userType,
     myLanguage,
     myName,
+    isSpeakerOn = true,
     onPartnerJoined,
     onPartnerLeft,
 }: UseWebSocketProps) {
@@ -57,12 +59,18 @@ export function useWebSocket({
     const audioQueueRef = useRef<string[]>([]);
     const isPlayingRef = useRef(false);
     const isAudioOnRef = useRef(true); // Track mute state for audio processor
+    const isSpeakerOnRef = useRef(true); // Track speaker state
     const partnerLevelTimeoutRef = useRef<number | null>(null);
 
     // Sync isAudioOnRef with isAudioOn state
     useEffect(() => {
         isAudioOnRef.current = isAudioOn;
     }, [isAudioOn]);
+
+    // Sync isSpeakerOnRef
+    useEffect(() => {
+        isSpeakerOnRef.current = isSpeakerOn;
+    }, [isSpeakerOn]);
 
     // Get WebSocket URL
     const getWSUrl = useCallback(() => {
@@ -93,7 +101,13 @@ export function useWebSocket({
                     const audioBuffer = await audioContextRef.current.decodeAudioData(bufferCopy);
                     const source = audioContextRef.current.createBufferSource();
                     source.buffer = audioBuffer;
-                    source.connect(audioContextRef.current.destination);
+                    
+                    // Create GainNode for volume control (speaker off)
+                    const gainNode = audioContextRef.current.createGain();
+                    gainNode.gain.value = isSpeakerOnRef.current ? 1 : 0;
+                    
+                    source.connect(gainNode);
+                    gainNode.connect(audioContextRef.current.destination);
                     
                     source.onended = () => {
                         isPlayingRef.current = false;
@@ -112,7 +126,7 @@ export function useWebSocket({
             const audioBlob = new Blob([bytes], { type: "audio/wav" });
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
-            audio.volume = 1.0;
+            audio.volume = isSpeakerOnRef.current ? 1.0 : 0.0;
 
             audio.onended = () => {
                 URL.revokeObjectURL(audioUrl);

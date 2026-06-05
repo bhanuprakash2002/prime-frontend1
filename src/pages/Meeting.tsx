@@ -32,7 +32,7 @@ export default function Meeting() {
   // UI state
   const [status, setStatus] = useState("Click Start to Join");
   const [started, setStarted] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768); // Open by default on md screens
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [isTranslationOn, setIsTranslationOn] = useState(true);
 
@@ -59,6 +59,7 @@ export default function Meeting() {
     userType: role,
     myLanguage,
     myName,
+    isSpeakerOn,
     onPartnerJoined: (name, language) => {
       setPartnerJoined(true);
       setPartnerName(name || "Partner");
@@ -324,7 +325,7 @@ export default function Meeting() {
         <aside
           className={`
             fixed md:relative inset-y-0 right-0 z-50
-            w-full sm:w-80 md:w-96 
+            w-full sm:w-80 md:w-96 h-full
             max-h-screen md:max-h-full
             border-l border-slate-800 bg-slate-900 
             transition-transform duration-300 ease-in-out
