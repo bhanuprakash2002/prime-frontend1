@@ -50,6 +50,7 @@ export default function Meeting() {
     partnerLevel,
     transcripts,
     interimText,
+    partnerInterimText,
     connect,
     disconnect,
     toggleMute,
@@ -286,10 +287,20 @@ export default function Meeting() {
             )}
           </div>
 
-          {/* Interim transcript */}
-          {interimText && (
-            <div className="mt-4 text-center text-slate-400 italic">
-              {interimText}...
+          {/* Interim transcripts */}
+          {(interimText || partnerInterimText) && (
+            <div className="mt-4 flex flex-col gap-2 max-w-2xl mx-auto w-full px-4">
+              {partnerInterimText && (
+                <div className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-3 rounded-2xl rounded-tl-sm self-start max-w-[80%] animate-pulse shadow-md">
+                  <div className="text-xs text-slate-500 mb-1 font-medium">{partnerName} is typing...</div>
+                  {partnerInterimText}...
+                </div>
+              )}
+              {interimText && (
+                <div className="bg-indigo-600/20 border border-indigo-500/30 text-indigo-200 px-4 py-3 rounded-2xl rounded-tr-sm self-end max-w-[80%] animate-pulse shadow-md">
+                  {interimText}...
+                </div>
+              )}
             </div>
           )}
 

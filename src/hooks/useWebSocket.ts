@@ -41,6 +41,7 @@ export function useWebSocket({
     // Transcripts
     const [transcripts, setTranscripts] = useState<TranscriptItem[]>([]);
     const [interimText, setInterimText] = useState<string>("");
+    const [partnerInterimText, setPartnerInterimText] = useState<string>("");
 
     // Refs
     const wsRef = useRef<WebSocket | null>(null);
@@ -152,11 +153,19 @@ export function useWebSocket({
 
                     case "transcript_interim":
                         console.log("⏳ INTERIM TEXT RECEIVED:", data.text);
-                        setInterimText(data.text || "");
+                        if (data.userType === userType) {
+                            setInterimText(data.original || data.text);
+                        } else {
+                            setPartnerInterimText(data.text || "");
+                        }
                         break;
 
                     case "translation":
-                        setInterimText("");
+                        if (data.fromUser === userType) {
+                            setInterimText("");
+                        } else {
+                            setPartnerInterimText("");
+                        }
                         const newTranscript: TranscriptItem = {
                             id: `${Date.now()}-${Math.random()}`,
                             originalText: data.originalText,
@@ -404,6 +413,7 @@ export function useWebSocket({
         partnerLevel,
         transcripts,
         interimText,
+        partnerInterimText,
 
         // Actions
         connect,
