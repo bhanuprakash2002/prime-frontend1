@@ -73,7 +73,7 @@ export default function ParticipantTile({
   return (
     <div
       className={`
-        relative rounded-2xl overflow-hidden 
+        w-full h-full relative rounded-2xl overflow-hidden flex flex-col
         bg-gradient-to-br from-slate-800/90 to-slate-900/90
         border-2 transition-all duration-300
         ${isSpeaking ? "border-green-500 shadow-lg shadow-green-500/20" : "border-slate-700/50"}
@@ -81,7 +81,7 @@ export default function ParticipantTile({
     >
       {/* Video element */}
       {hasVideo ? (
-        <div className="aspect-video relative min-h-[200px]">
+        <div className="w-full h-full relative min-h-[200px] flex-1">
           <video
             ref={videoRef}
             autoPlay
@@ -101,7 +101,7 @@ export default function ParticipantTile({
         </div>
       ) : (
         /* Avatar fallback when no video */
-        <div className="aspect-video flex flex-col items-center justify-center p-6 min-h-[200px]">
+        <div className="w-full h-full flex flex-col items-center justify-center p-6 min-h-[200px] flex-1">
           {/* Avatar circle */}
           <div
             className={`
