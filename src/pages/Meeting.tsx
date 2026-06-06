@@ -306,6 +306,14 @@ export default function Meeting() {
             </div>
           )}
 
+          {/* Video Error Message */}
+          {videoError && (
+            <div className="mt-4 bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl max-w-2xl mx-auto w-full text-center text-sm shadow-md">
+              <span className="font-semibold block mb-1">Video Error:</span>
+              {videoError}
+            </div>
+          )}
+
           {/* Waiting hint */}
           {!partnerJoined && (
             <div className="mt-8 text-center text-slate-400">

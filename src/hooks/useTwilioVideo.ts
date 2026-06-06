@@ -254,16 +254,48 @@ export function useTwilioVideo({
     }, []);
 
     // Toggle video on/off
-    const toggleVideo = useCallback(() => {
-        if (localTrackRef.current) {
-            if (isVideoOn) {
-                localTrackRef.current.disable();
-                console.log("📹 Video disabled");
-            } else {
-                localTrackRef.current.enable();
-                console.log("📹 Video enabled");
+    const toggleVideo = useCallback(async () => {
+        if (!roomRef.current) {
+            console.warn("📹 Cannot toggle video: Not connected to a room");
+            return;
+        }
+
+        if (isVideoOn && localTrackRef.current) {
+            console.log("📹 Turning off video...");
+            const track = localTrackRef.current;
+            
+            // Unpublish from room so remote participants see us turn off
+            roomRef.current.localParticipant.unpublishTrack(track);
+            
+            // Stop hardware capture (turns off camera light)
+            track.stop();
+            
+            localTrackRef.current = null;
+            setLocalVideoTrack(null);
+            setIsVideoOn(false);
+            console.log("📹 Video disabled and hardware released");
+        } else if (!isVideoOn) {
+            console.log("📹 Turning on video...");
+            try {
+                const newTrack = await Video.createLocalVideoTrack({
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    frameRate: { ideal: 24 },
+                });
+                
+                // Publish to room so remote participants can see us again
+                if (roomRef.current) {
+                    await roomRef.current.localParticipant.publishTrack(newTrack);
+                }
+                
+                localTrackRef.current = newTrack;
+                setLocalVideoTrack(newTrack);
+                setIsVideoOn(true);
+                console.log("✅ Video enabled and published");
+            } catch (err: any) {
+                console.error("❌ Failed to turn on video:", err);
+                setError(`Camera error: ${err.message}`);
             }
-            setIsVideoOn(!isVideoOn);
         }
     }, [isVideoOn]);
 
