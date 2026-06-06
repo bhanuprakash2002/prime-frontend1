@@ -268,13 +268,13 @@ export default function Meeting() {
 
       {/* Main */}
       <div className="flex flex-1 overflow-hidden relative">
-        <main className="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col pb-32">
-          <div className="flex-1 w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 justify-center items-stretch min-h-0">
+        <main className="flex-1 p-2 sm:p-4 overflow-hidden flex flex-col pb-24">
+          <div className="flex-1 w-full max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-2 lg:gap-4 justify-center items-stretch min-h-0">
             {participantsToRender.length === 0 ? (
-              <div className="text-slate-400">Waiting for participants...</div>
+              <div className="text-slate-400 flex items-center justify-center w-full">Waiting for participants...</div>
             ) : (
               participantsToRender.map((p) => (
-                <div key={p.id} className="w-full h-[45vh] lg:h-full min-h-[300px]">
+                <div key={p.id} className="flex-1 w-full min-h-0 min-w-0">
                   <ParticipantTile
                     name={p.name}
                     isLocal={p.isLocal}
