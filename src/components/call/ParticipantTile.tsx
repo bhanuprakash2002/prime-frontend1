@@ -87,7 +87,7 @@ export default function ParticipantTile({
             autoPlay
             playsInline
             muted={isLocal} // Mute local video to prevent echo
-            className={`w-full h-full object-cover ${isLocal ? "scale-x-[-1]" : ""}`}
+            className={`w-full h-full object-contain bg-black ${isLocal ? "scale-x-[-1]" : ""}`}
           />
         </div>
       )}
